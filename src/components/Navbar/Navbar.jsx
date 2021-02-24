@@ -1,6 +1,6 @@
 import React from 'react';
 import {AppBar, Toolbar, IconButton, Badge, MenuItem, Menu, Typography } from '@material-ui/core';
-import { ShoppingCart } from '@material-ui/icons';
+import { ShoppingCart, RemoveShoppingCart } from '@material-ui/icons';
 import useStyles from './styles'
 
 const Navbar = ({totalItems, emptyCart}) => {
@@ -19,8 +19,12 @@ const Navbar = ({totalItems, emptyCart}) => {
                             <ShoppingCart />
                         </Badge>
                     </IconButton>
+                </div>
+                
+                <div className={classes.button}>
                     <IconButton aria-label="Clear Cart" color="inherit" onClick = {emptyCart}>
-                        <Badge badgeContent ="EmptyCart" color ="primary">
+                        <Badge badgeContent ="Empty Cart" color ="inherit">
+                            <RemoveShoppingCart/>
                         </Badge>
                     </IconButton>
                 </div>

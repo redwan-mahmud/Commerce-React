@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Products from "./components/Products/Products";
 import NavBar from "./components/Navbar/Navbar";
 import { commerce } from "./lib/commerce";
+import Cart from "./components/Cart/Cart";
 const App = () => {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState({});
@@ -26,6 +27,7 @@ const App = () => {
   const emptyCart = async () => {
     const res = await commerce.cart.empty();
     console.log(res);
+    setCart(res.cart)
   };
 
   const handleAddToCart = async (productId, quantity) => {
@@ -39,12 +41,14 @@ const App = () => {
     fetchCart();
   }, []); //component did mount in class based componenets
   //console.log(products);
-  console.log(cart.total_items);
+  //console.log(cart.total_items);
+  console.log(cart);
   return (
     <div>
       <h1>Hello</h1>
       <Products products={products} onAddtoCart={handleAddToCart} />
       <NavBar totalItems={cart.total_items} emptyCart={emptyCart} />
+      <Cart cart = {cart} />
     </div>
   );
 };
