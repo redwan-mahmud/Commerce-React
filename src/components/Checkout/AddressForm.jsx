@@ -1,4 +1,4 @@
-import React from 'react';
+import {React, useState} from 'react';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
@@ -7,6 +7,15 @@ import Checkbox from '@material-ui/core/Checkbox';
 import {useForm, FormProvider} from 'react-hook-form';
 
 export default function AddressForm() {
+  const [shippingCountries, setShippingCountires] = useState([]);
+  const [shippingCountry, setShippingCountry] = useState('');
+  const [shippingSubDivisions, setShippingSubDivisions] = useState([]);
+  const [shippingSubDivision, setShippingSubDivision] = useState('');
+  const [shippingOptions, setShippingOptions] = useState([]);
+  const [shippingOption, setShippingOption] = useState([]);
+
+  
+  
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom>
@@ -76,14 +85,28 @@ export default function AddressForm() {
           />
         </Grid>
         <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="country"
-            name="country"
-            label="Country"
-            fullWidth
-            autoComplete="shipping country"
-          />
+          <InputLabel>Shipping Country</InputLabel>
+          <Select value = {} fullWidth onChange = {}>
+            <MenuItem key = {} value = {} >
+              Select Me
+            </MenuItem>
+          </Select>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <InputLabel>Shipping subdivision</InputLabel>
+          <Select value = {} fullWidth onChange = {}>
+            <MenuItem key = {} value = {} >
+              Select Me
+            </MenuItem>
+          </Select>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <InputLabel>Shipping Options</InputLabel>
+          <Select value = {} fullWidth onChange = {}>
+            <MenuItem key = {} value = {} >
+              Select Me
+            </MenuItem>
+          </Select>
         </Grid>
         <Grid item xs={12}>
           <FormControlLabel
