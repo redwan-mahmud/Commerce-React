@@ -1,5 +1,4 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import React, {useState,useEffect} from 'react';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -13,7 +12,8 @@ import Typography from '@material-ui/core/Typography';
 import AddressForm from './AddressForm';
 import PaymentForm from './PaymentForm';
 import Review from './Review';
-
+import {commerce} from '../../lib/commerce'
+import useStyles from './styles'
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -27,61 +27,42 @@ function Copyright() {
   );
 }
 
-const useStyles = makeStyles((theme) => ({
-  appBar: {
-    position: 'relative',
-  },
-  layout: {
-    width: 'auto',
-    marginLeft: theme.spacing(2),
-    marginRight: theme.spacing(2),
-    [theme.breakpoints.up(600 + theme.spacing(2) * 2)]: {
-      width: 600,
-      marginLeft: 'auto',
-      marginRight: 'auto',
-    },
-  },
-  paper: {
-    marginTop: theme.spacing(3),
-    marginBottom: theme.spacing(3),
-    padding: theme.spacing(2),
-    [theme.breakpoints.up(600 + theme.spacing(3) * 2)]: {
-      marginTop: theme.spacing(6),
-      marginBottom: theme.spacing(6),
-      padding: theme.spacing(3),
-    },
-  },
-  stepper: {
-    padding: theme.spacing(3, 0, 5),
-  },
-  buttons: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-  },
-  button: {
-    marginTop: theme.spacing(3),
-    marginLeft: theme.spacing(1),
-  },
-}));
 
-const steps = ['Shipping address', 'Payment details', 'Review your order'];
 
-function getStepContent(step) {
-  switch (step) {
-    case 0:
-      return <AddressForm />;
-    case 1:
-      return <PaymentForm />;
-    case 2:
-      return <Review />;
-    default:
-      throw new Error('Unknown step');
-  }
-}
 
-export default function Checkout() {
+
+export default function Checkout({cart}) {
+  
   const classes = useStyles();
-  const [activeStep, setActiveStep] = React.useState(0);
+  const [activeStep, setActiveStep] = useState(0);
+  const [checkoutToken, setCheckoutToken] = useState(null);
+  const steps = ['Shipping address', 'Payment details', 'Review your order'];
+
+  function getStepContent(step) {
+    switch (step) {
+      case 0:
+        return <AddressForm checkoutToken = {checkoutToken} />;
+      case 1:
+        return <PaymentForm />;
+      case 2:
+        return <Review />;
+      default:
+        throw new Error('Unknown step');
+    }
+  }
+
+  useEffect(() => {
+    const generateToken = async() => {
+      try{
+        const token = await commerce.checkout.generateToken(cart.id, {type: 'cart'});
+        console.log(token)
+        setCheckoutToken(token);
+      } catch (error){
+        console.log(error)
+      }
+    }
+    generateToken();
+  },[cart])
 
   const handleNext = () => {
     setActiveStep(activeStep + 1);
@@ -118,7 +99,7 @@ export default function Checkout() {
                   send you an update when your order has shipped.
                 </Typography>
               </React.Fragment>
-            ) : (
+            ) : checkoutToken && (
               <React.Fragment>
                 {getStepContent(activeStep)}
                 <div className={classes.buttons}>
