@@ -9,57 +9,56 @@ import {commerce} from '../../lib/commerce'
 
 
 export default function AddressForm({checkoutToken}) {
-  const [shippingCountries, setShippingCountires] = useState([]);
+  const [shippingCountries, setShippingCountries] = useState([]);
   const [shippingCountry, setShippingCountry] = useState('');
-  const [shippingSubDivisions, setShippingSubDivisions] = useState([]);
-  const [shippingSubDivision, setShippingSubDivision] = useState('');
+  const [shippingSubdivisions, setShippingSubdivisions] = useState([]);
+  const [shippingSubdivision, setShippingSubdivision] = useState('');
   const [shippingOptions, setShippingOptions] = useState([]);
-  const [shippingOption, setShippingOption] = useState([]);
+  const [shippingOption, setShippingOption] = useState('');
   
   const methods = useForm();
    //console.log(checkoutToken)
-   
-  const fetchShippingCountries = async(checkoutTokenId)=>{
-      const {countries } = await commerce.services.localeListShippingCountries(checkoutTokenId);
-      //console.log(countries);
-      setShippingCountires(countries);
-      setShippingCountry(Object.keys(countries)[0]);
-  }
-
-  const fetchSubdivisions = async(countrycode)=>{
-    const { subdivisions } = await commerce.services.localeListSubdivisions(countrycode);
-    //console.log(subdivisions);
-    setShippingSubDivisions(subdivisions);
-    setShippingSubDivision(Object.keys(subdivisions)[0]);
-}
-
-  const fetchShippingOptions = async(checkoutTokenId, country, region =null) => {
-    console.log(country)
-    console.log(region)
-    const options = await commerce.checkout.getShippingOptions(checkoutTokenId, {country, region});
-    console.log(options)
-    //console.log(setShippingOptions(options));
-    //setShippingOption(options[0].id);
-  }
   const countries = Object.entries(shippingCountries).map(([code, name]) => ({id:code, label: name}))
-  const subdivisions = Object.entries(shippingSubDivisions).map(([code, name]) => ({id:code, label: name}))
+  const subdivisions = Object.entries(shippingSubdivisions).map(([code, name]) => ({id:code, label: name}))
+  const options = shippingOptions.map((so)=> ({id: so.id, label: `${so.description} - (${so.price.formatted_with_symbol})`}) )
+  console.log(options)
+  const fetchShippingCountries = async (checkoutTokenId) => {
+    const { countries } = await commerce.services.localeListShippingCountries(checkoutTokenId);
 
-  // const options = shippingOptions.map((so)=> ({id: so.id, label: `${so.description} - (${so.price.formatted_with_symbol})`}) )
-  console.log(shippingOptions)
+    setShippingCountries(countries);
+    setShippingCountry(Object.keys(countries)[0]);
+  };
+
+  const fetchSubdivisions = async (countryCode) => {
+    const { subdivisions } = await commerce.services.localeListSubdivisions(countryCode);
+
+    setShippingSubdivisions(subdivisions);
+    setShippingSubdivision(Object.keys(subdivisions)[0]);
+  };
+
+  const fetchShippingOptions = async (checkoutTokenId, country, stateProvince = null) => {
+    const options = await commerce.checkout.getShippingOptions(checkoutTokenId, {  country,
+    region: stateProvince });
+
+    setShippingOptions(options);
+    setShippingOption(options[0].id);
+    //console.log(options)
+  };
 
   useEffect(() => {
-    fetchShippingCountries(checkoutToken.id)
-  },[])
+    fetchShippingCountries(checkoutToken.id);
+  }, []);
+
+  useEffect(() => {
+    if (shippingCountry) fetchSubdivisions(shippingCountry);
+  }, [shippingCountry]);
+
+  useEffect(() => {
+    if (shippingSubdivision) fetchShippingOptions(checkoutToken.id, shippingCountry, shippingSubdivision);
+  }, [shippingSubdivision]);
+
+
   
-  //console.log(country)
-  useEffect(()=> {
-    if(shippingCountry) fetchSubdivisions(shippingCountry)
-  }, [shippingCountry])
-
-
-  useEffect(()=> {
-    if(shippingSubDivision) fetchShippingOptions(checkoutToken.id, shippingCountry, shippingSubDivision)
-  }, [shippingSubDivision])
   
   return (
     <>
@@ -141,7 +140,7 @@ export default function AddressForm({checkoutToken}) {
         </Grid>
         <Grid item xs={12} sm={6}>
           <InputLabel>Shipping subdivision</InputLabel>
-          <Select value = {shippingSubDivision} fullWidth onChange = {(e) => setShippingSubDivision(e.target.value)}>
+          <Select value = {shippingSubdivision} fullWidth onChange = {(e) => setShippingSubdivision(e.target.value)}>
             {subdivisions.map((subdivision)=>
                 <MenuItem key = {subdivision.id} value = {subdivision.id} >
                 {subdivision.label}
@@ -149,14 +148,16 @@ export default function AddressForm({checkoutToken}) {
             )}
           </Select>
         </Grid>
-        {/*<Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={6}>
           <InputLabel>Shipping Options</InputLabel>
-          <Select value = {} fullWidth onChange = {}>
-            <MenuItem key = {} value = {} >
-              Select Me
-            </MenuItem>
+          <Select value = {shippingOption} fullWidth onChange = {(e) => setShippingOption(e.target.value)}>
+            {options.map((option)=>
+                <MenuItem key = {option.id} value = {option.id} >
+                {option.label}
+              </MenuItem>
+            )}
           </Select>
-        </Grid> */}
+        </Grid>
         <Grid item xs={12}>
           <FormControlLabel
             control={<Checkbox color="secondary" name="saveAddress" value="yes" />}
