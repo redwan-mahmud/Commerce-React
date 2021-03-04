@@ -1,4 +1,5 @@
 import React, {useState,useEffect} from 'react';
+import {Link as LinkTo} from 'react-router-dom'
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -14,6 +15,8 @@ import PaymentForm from './PaymentForm';
 import Review from './Review';
 import {commerce} from '../../lib/commerce'
 import useStyles from './styles'
+
+
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -27,21 +30,18 @@ function Copyright() {
   );
 }
 
-
-
-
-
 export default function Checkout({cart}) {
   
   const classes = useStyles();
   const [activeStep, setActiveStep] = useState(0);
   const [checkoutToken, setCheckoutToken] = useState(null);
+  const [shippingInfo, setShippingInfo] = useState({});
   const steps = ['Shipping address', 'Payment details', 'Review your order'];
 
   function getStepContent(step) {
     switch (step) {
       case 0:
-        return <AddressForm checkoutToken = {checkoutToken} />;
+        return <AddressForm checkoutToken = {checkoutToken} next = {next} />;
       case 1:
         return <PaymentForm />;
       case 2:
@@ -49,6 +49,12 @@ export default function Checkout({cart}) {
       default:
         throw new Error('Unknown step');
     }
+  }
+
+  const next = (data) => {
+    setShippingInfo(data);
+    handleNext();
+    
   }
 
   useEffect(() => {
@@ -72,6 +78,24 @@ export default function Checkout({cart}) {
     setActiveStep(activeStep - 1);
   };
 
+  const backToCartButton = () => {
+    return(
+      <Button
+                    component = {LinkTo}
+                    to = "/cart"
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleNext}
+                    className={classes.button}
+                  >
+                    Back to Cart
+                  </Button>
+    )
+  }
+  // const Form = () => {
+  //   if(acitiveStep === 0) <AddressForm
+  // }
+  
   return (
     <React.Fragment>
       <CssBaseline />
@@ -103,6 +127,7 @@ export default function Checkout({cart}) {
               <React.Fragment>
                 {getStepContent(activeStep)}
                 <div className={classes.buttons}>
+                  {activeStep === 0 ? backToCartButton() : null}
                   {activeStep !== 0 && (
                     <Button onClick={handleBack} className={classes.button}>
                       Back
@@ -116,6 +141,7 @@ export default function Checkout({cart}) {
                   >
                     {activeStep === steps.length - 1 ? 'Place order' : 'Next'}
                   </Button>
+                  
                 </div>
               </React.Fragment>
             )}

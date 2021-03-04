@@ -8,7 +8,7 @@ import {useForm, FormProvider} from 'react-hook-form';
 import {commerce} from '../../lib/commerce'
 
 
-export default function AddressForm({checkoutToken}) {
+export default function AddressForm({checkoutToken, next}) {
   const [shippingCountries, setShippingCountries] = useState([]);
   const [shippingCountry, setShippingCountry] = useState('');
   const [shippingSubdivisions, setShippingSubdivisions] = useState([]);
@@ -65,6 +65,7 @@ export default function AddressForm({checkoutToken}) {
       <Typography variant="h6" gutterBottom>
         Shipping address
       </Typography>
+      <form onSubmit = {methods.handleSubmit((data)=> next({...data,shippingCountry, shippingSubdivision,shippingOptions}))}>
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6}>
           <TextField
@@ -165,6 +166,7 @@ export default function AddressForm({checkoutToken}) {
           />
         </Grid>
       </Grid>
+      </form>
     </>
   );
 }
