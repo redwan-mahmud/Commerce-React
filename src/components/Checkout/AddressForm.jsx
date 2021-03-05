@@ -1,12 +1,13 @@
 import {React, useState, useEffect} from 'react';
-import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import {TextField, InputLabel,Select, MenuItem} from '@material-ui/core';
+import {InputLabel,Select, MenuItem, Grid, Typography} from '@material-ui/core';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import {useForm, FormProvider} from 'react-hook-form';
 import {commerce} from '../../lib/commerce'
-
+import Button from '@material-ui/core/Button';
+import {Link as LinkTo} from 'react-router-dom'
+import useStyles from './styles'
+import FormInput from './FormInput';
 
 export default function AddressForm({checkoutToken, next}) {
   const [shippingCountries, setShippingCountries] = useState([]);
@@ -15,13 +16,14 @@ export default function AddressForm({checkoutToken, next}) {
   const [shippingSubdivision, setShippingSubdivision] = useState('');
   const [shippingOptions, setShippingOptions] = useState([]);
   const [shippingOption, setShippingOption] = useState('');
-  
+
+  const classes = useStyles();
   const methods = useForm();
-   //console.log(checkoutToken)
+ 
   const countries = Object.entries(shippingCountries).map(([code, name]) => ({id:code, label: name}))
   const subdivisions = Object.entries(shippingSubdivisions).map(([code, name]) => ({id:code, label: name}))
   const options = shippingOptions.map((so)=> ({id: so.id, label: `${so.description} - (${so.price.formatted_with_symbol})`}) )
-  console.log(options)
+  //console.log(options)
   const fetchShippingCountries = async (checkoutTokenId) => {
     const { countries } = await commerce.services.localeListShippingCountries(checkoutTokenId);
 
@@ -45,6 +47,20 @@ export default function AddressForm({checkoutToken, next}) {
     //console.log(options)
   };
 
+  const backToCartButton = () => {
+    return(
+      <Button
+                    component = {LinkTo}
+                    to = "/cart"
+                    variant="contained"
+                    color="secondary"
+                    className={classes.button}
+                  >
+                    Back to Cart
+                  </Button>
+    )
+  }
+
   useEffect(() => {
     fetchShippingCountries(checkoutToken.id);
   }, []);
@@ -57,78 +73,24 @@ export default function AddressForm({checkoutToken, next}) {
     if (shippingSubdivision) fetchShippingOptions(checkoutToken.id, shippingCountry, shippingSubdivision);
   }, [shippingSubdivision]);
 
-
+  
   
   
   return (
-    <>
+    <>  
       <Typography variant="h6" gutterBottom>
         Shipping address
       </Typography>
+      <FormProvider {...methods}>
       <form onSubmit = {methods.handleSubmit((data)=> next({...data,shippingCountry, shippingSubdivision,shippingOptions}))}>
       <Grid container spacing={3}>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="firstName"
-            name="firstName"
-            label="First name"
-            fullWidth
-            autoComplete="given-name"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="lastName"
-            name="lastName"
-            label="Last name"
-            fullWidth
-            autoComplete="family-name"
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            required
-            id="address1"
-            name="address1"
-            label="Address line 1"
-            fullWidth
-            autoComplete="shipping address-line1"
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            id="address2"
-            name="address2"
-            label="Address line 2"
-            fullWidth
-            autoComplete="shipping address-line2"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="city"
-            name="city"
-            label="City"
-            fullWidth
-            autoComplete="shipping address-level2"
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField id="state" name="state" label="State/Province/Region" fullWidth />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            id="zip"
-            name="zip"
-            label="Zip / Postal code"
-            fullWidth
-            autoComplete="shipping postal-code"
-          />
-        </Grid>
+            <FormInput required name="firstName" label="First name" />
+            <FormInput required name="lastName" label="Last name" />
+            <FormInput required name="address1" label="Address line 1" />
+            <FormInput required name="email" label="Email" />
+            <FormInput required name="city" label="City" />
+            <FormInput required name="zip" label="Zip / Postal code" />
+
         <Grid item xs={12} sm={6}>
           <InputLabel>Shipping Country</InputLabel>
           <Select value = {shippingCountry} fullWidth onChange = {(e) => setShippingCountry(e.target.value)}>
@@ -165,8 +127,26 @@ export default function AddressForm({checkoutToken, next}) {
             label="Use this address for payment details"
           />
         </Grid>
+        
       </Grid>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  
+                    <Button onClick={backToCartButton} className={classes.button}>
+                      Back to Cart
+                    </Button>
+                  
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type = "submit"
+                    className={classes.button}
+                  >
+                    Next
+                  </Button>
+                  
+                </div>
       </form>
+      </FormProvider>
     </>
   );
 }

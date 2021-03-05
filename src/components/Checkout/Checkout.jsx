@@ -1,14 +1,11 @@
 import React, {useState,useEffect} from 'react';
-import {Link as LinkTo} from 'react-router-dom'
+
 import CssBaseline from '@material-ui/core/CssBaseline';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
+
 import Paper from '@material-ui/core/Paper';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
-import Button from '@material-ui/core/Button';
-import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
 import AddressForm from './AddressForm';
 import PaymentForm from './PaymentForm';
@@ -21,9 +18,9 @@ function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
       {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
+      
         Commerce
-      </Link>{' '}
+      
       {new Date().getFullYear()}
       {'.'}
     </Typography>
@@ -36,27 +33,30 @@ export default function Checkout({cart}) {
   const [activeStep, setActiveStep] = useState(0);
   const [checkoutToken, setCheckoutToken] = useState(null);
   const [shippingInfo, setShippingInfo] = useState({});
-  const steps = ['Shipping address', 'Payment details', 'Review your order'];
+  const steps = ['Shipping address', 'Payment details', 'Order Summary'];
 
   function getStepContent(step) {
     switch (step) {
       case 0:
         return <AddressForm checkoutToken = {checkoutToken} next = {next} />;
       case 1:
-        return <PaymentForm />;
+        return <PaymentForm handleBack = {handleBack} handleNext = {handleNext} checkoutToken = {checkoutToken} />;
       case 2:
-        return <Review />;
+        return <Review checkoutToken = {checkoutToken} />;
       default:
         throw new Error('Unknown step');
     }
   }
 
   const next = (data) => {
+    console.log(data)
     setShippingInfo(data);
     handleNext();
     
+    
   }
 
+  //console.log(shippingInfo)
   useEffect(() => {
     const generateToken = async() => {
       try{
@@ -78,20 +78,7 @@ export default function Checkout({cart}) {
     setActiveStep(activeStep - 1);
   };
 
-  const backToCartButton = () => {
-    return(
-      <Button
-                    component = {LinkTo}
-                    to = "/cart"
-                    variant="contained"
-                    color="secondary"
-                    onClick={handleNext}
-                    className={classes.button}
-                  >
-                    Back to Cart
-                  </Button>
-    )
-  }
+
   // const Form = () => {
   //   if(acitiveStep === 0) <AddressForm
   // }
@@ -114,35 +101,11 @@ export default function Checkout({cart}) {
           </Stepper>
           <React.Fragment>
             {activeStep === steps.length ? (
-              <React.Fragment>
-                <Typography variant="h5" gutterBottom>
-                  Thank you for your order.
-                </Typography>
-                <Typography variant="subtitle1">
-                  Your order number is #2001539. We have emailed your order confirmation, and will
-                  send you an update when your order has shipped.
-                </Typography>
-              </React.Fragment>
+              <Review />
             ) : checkoutToken && (
               <React.Fragment>
                 {getStepContent(activeStep)}
-                <div className={classes.buttons}>
-                  {activeStep === 0 ? backToCartButton() : null}
-                  {activeStep !== 0 && (
-                    <Button onClick={handleBack} className={classes.button}>
-                      Back
-                    </Button>
-                  )}
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleNext}
-                    className={classes.button}
-                  >
-                    {activeStep === steps.length - 1 ? 'Place order' : 'Next'}
-                  </Button>
-                  
-                </div>
+                
               </React.Fragment>
             )}
           </React.Fragment>
