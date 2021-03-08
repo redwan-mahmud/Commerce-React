@@ -79,9 +79,7 @@ export default function Checkout({cart}) {
   };
 
 
-  // const Form = () => {
-  //   if(acitiveStep === 0) <AddressForm
-  // }
+
   
   return (
     <React.Fragment>
