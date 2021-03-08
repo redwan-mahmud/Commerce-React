@@ -42,7 +42,7 @@ export default function Checkout({cart, order, onCaptureCheckout, error}) {
       case 1:
         return <PaymentForm handleBack = {handleBack} handleNext = {handleNext} checkoutToken = {checkoutToken} shippingData = {shippingInfo} onCaptureCheckout ={onCaptureCheckout}/>;
       case 2:
-        return <Review checkoutToken = {checkoutToken} />;
+        return <Review checkoutToken = {checkoutToken} shippingData = {shippingInfo} />;
       default:
         throw new Error('Unknown step');
     }
@@ -98,9 +98,7 @@ export default function Checkout({cart, order, onCaptureCheckout, error}) {
             ))}
           </Stepper>
           <React.Fragment>
-            {activeStep === steps.length ? (
-              <Review />
-            ) : checkoutToken && (
+            {checkoutToken && (
               <React.Fragment>
                 {getStepContent(activeStep)}
                 

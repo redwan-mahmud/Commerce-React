@@ -19,15 +19,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Review( {checkoutToken}) {
+export default function Review( {checkoutToken, shippingData}) {
   const classes = useStyles();
-  //console.log(checkoutToken)
+  console.log(shippingData)
+  console.log(checkoutToken)
   const cartProducts = checkoutToken.live.line_items;
 
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom>
-        Order summary
+        Thank you for your Purchase 
       </Typography>
       <List disablePadding>
         {cartProducts.map((product) => (
@@ -46,15 +47,16 @@ export default function Review( {checkoutToken}) {
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
           <Typography variant="h6" gutterBottom className={classes.title}>
-            Shipping
+            Customer Name
           </Typography>
-          <Typography gutterBottom>John Smith</Typography>
+          <Typography gutterBottom>{shippingData.firstName} {shippingData.lastName}</Typography>
           <Typography gutterBottom></Typography>
         </Grid>
         <Grid item container direction="column" xs={12} sm={6}>
           <Typography variant="h6" gutterBottom className={classes.title}>
             Payment details
           </Typography>
+          <Typography gutterBottom>Amount paid in full</Typography>
          
         </Grid>
       </Grid>
