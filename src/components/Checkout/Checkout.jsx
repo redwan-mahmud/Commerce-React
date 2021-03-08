@@ -27,7 +27,7 @@ function Copyright() {
   );
 }
 
-export default function Checkout({cart}) {
+export default function Checkout({cart, order, onCaptureCheckout, error}) {
   
   const classes = useStyles();
   const [activeStep, setActiveStep] = useState(0);
@@ -40,7 +40,7 @@ export default function Checkout({cart}) {
       case 0:
         return <AddressForm checkoutToken = {checkoutToken} next = {next} />;
       case 1:
-        return <PaymentForm handleBack = {handleBack} handleNext = {handleNext} checkoutToken = {checkoutToken} />;
+        return <PaymentForm handleBack = {handleBack} handleNext = {handleNext} checkoutToken = {checkoutToken} shippingData = {shippingInfo} onCaptureCheckout ={onCaptureCheckout}/>;
       case 2:
         return <Review checkoutToken = {checkoutToken} />;
       default:
@@ -49,14 +49,14 @@ export default function Checkout({cart}) {
   }
 
   const next = (data) => {
-    console.log(data)
+    //console.log(data)
     setShippingInfo(data);
     handleNext();
     
     
   }
 
-  //console.log(shippingInfo)
+  console.log(shippingInfo)
   useEffect(() => {
     const generateToken = async() => {
       try{

@@ -8,7 +8,8 @@ import Checkout from "./components/Checkout/Checkout";
 const App = () => {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState({});
-
+  const [order,setOrder] = useState({});
+  const [errorMessage, setErrorMessage] = useState('')
   const fetchProducts = async () => {
     try {
       const { data } = await commerce.products.list();
@@ -53,13 +54,34 @@ const App = () => {
     setCart(item.cart);
   };
 
+
+  const refreshCart = async() => {
+    const newCart = await commerce.cart.refresh();
+    setCart(newCart);
+  }
+  const handleCaptureCheckout = async(checkoutTokenId, newOrder)=>{
+    try {
+      const incomingOrder = await commerce.checkout.capture(checkoutTokenId, newOrder)
+      
+      setOrder(incomingOrder);
+      refreshCart();
+      console.log("Order Complete")
+    }
+    catch (error){
+      setErrorMessage(error.data.error.message)
+      console.log("Couldn't complete orer")
+
+    }
+  }
+
+
   useEffect(() => {
     fetchProducts();
     fetchCart();
   }, []); //component did mount in class based componenets
   //console.log(products);
   //console.log(cart.total_items);
-  console.log(cart);
+  //console.log(cart);
   return (
     <Router>
       <div>
@@ -79,7 +101,10 @@ const App = () => {
             />
           </Route>
           <Route exact path="/checkout">
-            <Checkout cart = {cart} />
+            <Checkout cart = {cart} 
+            order = {order} 
+            onCaptureCheckout = {handleCaptureCheckout} 
+            error = {errorMessage} />
           </Route>
         </Switch>
       </div>

@@ -82,7 +82,7 @@ export default function AddressForm({checkoutToken, next}) {
         Shipping address
       </Typography>
       <FormProvider {...methods}>
-      <form onSubmit = {methods.handleSubmit((data)=> next({...data,shippingCountry, shippingSubdivision,shippingOptions}))}>
+      <form onSubmit = {methods.handleSubmit((data)=> next({...data,shippingCountry, shippingSubdivision,shippingOption}))}>
       <Grid container spacing={3}>
             <FormInput required name="firstName" label="First name" />
             <FormInput required name="lastName" label="Last name" />

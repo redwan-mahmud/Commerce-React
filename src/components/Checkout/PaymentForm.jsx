@@ -12,7 +12,9 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import {Elements, CardElement, ElementsConsumer} from '@stripe/react-stripe-js';
-const stripePromise = loadStripe('...')
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_API_KEY)
+
+
 const useStyles = makeStyles((theme) => ({
   listItem: {
     padding: theme.spacing(1, 0),
@@ -24,9 +26,48 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
   },
 }));
-export default function PaymentForm({handleNext,handleBack ,checkoutToken}) {
+
+
+
+export default function PaymentForm({handleNext,handleBack ,checkoutToken, shippingData, onCaptureCheckout}) {
   const classes = useStyles();
   const cartProducts = checkoutToken.live.line_items;
+
+  const handleSubmit = async (event, elements, stripe) => {
+    event.preventDefault() 
+    console.log(shippingData)
+    if(!stripe || !elements) return; 
+
+    const cardElement = elements.getElement(CardElement);
+    //creating a payment method 
+    const {error, paymentMethod} = await stripe.createPaymentMethod({type: 'card', card: cardElement});
+
+    if(error){
+      console.log(error);
+    } else {
+      const orderData = {
+        line_items: checkoutToken.live.line_items,
+        customer: {firstname: shippingData.firstName, lastname: shippingData.lastName, email: shippingData.email},
+        shipping: {name: 'International',
+                  street: shippingData.address1,
+                  town_city: shippingData.city,
+                  state: shippingData.shippingSubdivision,
+                  postalCode: shippingData.zip,
+                  country: shippingData.shippingCountry},
+        fulfillment: {shipping_method: shippingData.shippingOption},
+        payment: {
+                    geteway : 'stripe',
+                    stripe : {
+                      payment_method_id : paymentMethod.id
+                    }
+                  }
+              }
+              
+              onCaptureCheckout(checkoutToken.id, orderData);
+
+              handleNext();
+    }
+  }
   return (
     <>
     <Divider/>
@@ -44,11 +85,11 @@ export default function PaymentForm({handleNext,handleBack ,checkoutToken}) {
           </Typography>
         </ListItem>
       </List>
-    <Typography variant = "h6" gutterBottom style ={{margin: '20px 0'}}> Payment method</Typography>
+    <Typography variant = "h6" gutterBottom style ={{margin: '20px 0'}}>Payment method</Typography>
     <Elements stripe = {stripePromise}>
       <ElementsConsumer>
         {({elements, stripe})=> (
-          <form> 
+          <form onSubmit = {(e) => handleSubmit(e,elements,stripe)}> 
             <CardElement />
             <br/>
             <div style = {{display: 'flex', justifyContent: 'space-between'}}>
